@@ -20,7 +20,7 @@ const { walk } = Astro.props as { walk: Walk };
       <path d={walk.path} fill="none" stroke="black" stroke-width="2.2" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round" />
       {walk.photos.map((photo, index) => photo.marker && (
         <a href={`#photo-${index}`} data-photo-index={index} aria-label={`Photo ${index + 1}`}>
-          <circle cx={photo.marker[0]} cy={photo.marker[1]} r="5.5" fill="#f6d94c" stroke="black" stroke-width="1.5" />
+          <circle cx={photo.marker[0]} cy={photo.marker[1]} r="5.5" fill={photo.color ?? "#f6d94c"} stroke={photo.color === "#202020" ? "white" : "black"} stroke-width="1.5" />
         </a>
       ))}
     </svg>
@@ -28,8 +28,8 @@ const { walk } = Astro.props as { walk: Walk };
       <div class="photos">
         {walk.photos.map((photo, index) => (
           <figure id={`photo-${index}`}>
-            <a href={photo.src} data-lightbox data-marker={photo.marker?.join(",")}><img src={photo.thumbnailSrc} width="360" height="480" alt={photo.by ? `Photo by ${photo.by}` : `Walk photo ${index + 1}`} loading="lazy" decoding="async" /></a>
-            {photo.by && <figcaption>{photo.by}</figcaption>}
+            <a href={photo.src} data-lightbox data-marker={photo.marker?.join(",")} data-marker-color={photo.color ?? "#f6d94c"}><img src={photo.thumbnailSrc} width="360" height="480" alt={photo.by ? `Photo by ${photo.by}` : `Walk photo ${index + 1}`} loading="lazy" decoding="async" /></a>
+            {photo.by && <figcaption>{photo.color && <span class="photo-color" style={`--photo-color: ${photo.color}`} aria-hidden="true"></span>}{photo.by}</figcaption>}
           </figure>
         ))}
       </div>
@@ -78,6 +78,9 @@ const { walk } = Astro.props as { walk: Walk };
         marker.setAttribute("cx", point[0]);
         marker.setAttribute("cy", point[1]);
       }
+      const color = link.dataset.markerColor ?? "#f6d94c";
+      marker.setAttribute("fill", color);
+      marker.setAttribute("stroke", color === "#fff" ? "black" : "white");
     }
 
     viewer.querySelector(".lightbox-close")!.addEventListener("click", () => viewer.close());
